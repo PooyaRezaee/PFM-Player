@@ -9,7 +9,18 @@ from flet import (
     AppBar,
     IconButton,
     Image,
+    Tabs,
+    Tab,
+    Container,
+    alignment,
+    TextButton,
+    Column,
+    alignment,
+    border,
+    border_radius,
+    margin,
 )
+
 from utils import set_defualt_setting, read_data_setting, write_data_setting
 from os.path import exists
 
@@ -24,10 +35,11 @@ def main(page: Page):
     page.window_height = 700
     page.horizontal_alignment = "center"
     page.window_opacity = 0.95
-    page.window_title_bar_hidden = True
-    page.window_resizable = False
-    page.window_always_on_top = True  # This is For easy Debuging is Active
+    # page.window_title_bar_hidden = True
+    # page.window_resizable = False
+    # page.window_always_on_top = True  # This is For easy Debuging is Active
     page.window_center()
+    page.show_semantics_debugger = False  # DEBUGER
 
     # Confg File
     them = read_data_setting()['them']
@@ -60,6 +72,12 @@ def main(page: Page):
         else:
             raise ValueError('data for change them is wrong')
 
+    def play_song(e):
+        # TODO COMPLATE IT --> 1.Play Song | 2.Change Disable BTN Played Song
+        pass
+
+    # TODO To Work Play Music and other Funcionts
+
     # === Widgets ===
     btn_close = IconButton(icon=icons.CLOSE, width=40,
                            icon_color=colors.RED_300, on_click=close_window, tooltip='CLOSE')
@@ -71,7 +89,52 @@ def main(page: Page):
         icons.NIGHTLIGHT, icon_color=colors.BLUE_100, data='dark', on_click=change_them)
     Title = Text(value='PFM Player', italic=True, size=30)
 
-    page.update()
+    tabs = [
+        Tab(
+            icon=icons.FAVORITE_SHARP,
+            content=Container(
+                content=Text("This is Tab 1"), alignment=alignment.center
+            ),
+        ),
+        Tab(
+            text="Defualt",
+            icon=icons.PLAYLIST_PLAY,
+            content=Text("This is Tab 2"),
+        ),
+    ]
+
+    for item in read_data_setting()["play_lists"]:
+        active_song = read_data_setting()["active_song"].split(':')
+        title_play_list = item["title"]
+        paths = item["paths"]
+        list_music = Column(scroll='always', spacing=0)
+        for path in paths:
+            selection = TextButton(
+                f"{path}", on_click=play_song, width=400, height=40)
+
+            if active_song[0] == title_play_list and active_song[1] == path:
+                selection.disabled = True
+            list_music.controls.append(selection)
+
+        if title_play_list == "favorite":
+            tabs[0].content = list_music
+        elif title_play_list == "defualt":
+            tabs[1].content = list_music
+        else:
+            tabs.append(
+                Tab(
+                    text=title_play_list,
+                    icon=icons.PLAYLIST_PLAY,
+                    content=list_music,
+                )
+            )
+
+    play_lists = Tabs(
+        selected_index=1,
+        animation_duration=200,
+        tabs=tabs
+    )
+
     if them == 'dark':
         btn_dark_mode.visible = False
     elif them == 'light':
@@ -95,6 +158,7 @@ def main(page: Page):
         actions=[
             icon_main,
             VerticalDivider(width=20, opacity=0.5, thickness=1),
+            # TODO OPEN LINK REPOSITORY GITHUB AFTER CLICK ON BTN
             IconButton(icons.CODE_OUTLINED),
             btn_light_mode,
             btn_dark_mode,
@@ -103,6 +167,22 @@ def main(page: Page):
             VerticalDivider(width=5, opacity=0),
         ],
     )
+
+    page.add(Container(
+        width=400,
+        height=500,
+        content=play_lists,
+        padding=0,
+        margin=margin.only(left=10, right=10, top=0, bottom=0),
+        # alignment=alignment.center,
+        # bgcolor='#FFCC0000',
+        border=border.all(3, '#2f2f2f'),
+        border_radius=border_radius.all(5),
+
+    )
+    )
+
+    # TODO MAKE BTN PLAYER --> (play,stop,volum,like)
 
     page.update()
 
