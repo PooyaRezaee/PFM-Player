@@ -19,10 +19,18 @@ from flet import (
     border,
     border_radius,
     margin,
+    Row,
+    Slider,
+    Switch,
+    ElevatedButton,
+    Slider
 )
+
 
 from utils import set_defualt_setting, read_data_setting, write_data_setting
 from os.path import exists
+
+# Structure Cofig File ==> active_song: the song playing -> PlayListName:path | them: 'dark' or light 'them' | play_lists: [  {title:name play list , paths:list of path songs },...  ] |
 
 
 def main(page: Page):
@@ -32,12 +40,12 @@ def main(page: Page):
     # === Settings ===
     page.title = "PFM Player"  # Python Flet Music Player
     page.window_width = 500
-    page.window_height = 700
+    page.window_height = 800
     page.horizontal_alignment = "center"
     page.window_opacity = 0.95
-    # page.window_title_bar_hidden = True
+    page.window_title_bar_hidden = True
     # page.window_resizable = False
-    # page.window_always_on_top = True  # This is For easy Debuging is Active
+    # page.window_always_on_top = True  #TODO ADD BUTTON PIN FOR ENABLE AND DSIABLE THIS IN APP BAR
     page.window_center()
     page.show_semantics_debugger = False  # DEBUGER
 
@@ -76,7 +84,7 @@ def main(page: Page):
         # TODO COMPLATE IT --> 1.Play Song
 
         # Enable btn old played song and Disable BTN new song player
-        this = e.control # Select Btn Clicked
+        this = e.control  # Select Btn Clicked
         active_song = read_data_setting()["active_song"].split(':')
         active_song_btn = this.data['tabs']
         for tab in active_song_btn:
@@ -91,12 +99,25 @@ def main(page: Page):
         # Write in config file song played
         play_list = this.data['title_play_list']
         path = this.text
-        write_data_setting("active_song",f"{play_list}:{path}")
-
+        write_data_setting("active_song", f"{play_list}:{path}")
 
         page.update()
 
     # TODO To Work Play Music and other Funcionts
+    def change_volum(e):
+        value = f"Slider changed to {e.control.value}"
+        page.update()
+
+    def like_music(e):
+        like_btn.visible = not like_btn.visible
+        unlike_btn.visible = not unlike_btn.visible
+        page.update()
+
+    def play_pause_btn(e):
+        play_btn.visible = not play_btn.visible
+        pause_btn.visible = not pause_btn.visible
+        page.update()
+
 
     # === Widgets ===
     btn_close = IconButton(icon=icons.CLOSE, width=40,
@@ -130,7 +151,8 @@ def main(page: Page):
         paths = item["paths"]
         list_music = Column(scroll='always', spacing=0)
         for path in paths:
-            selection = TextButton(f"{path}"  ,data={"title_play_list":title_play_list,"tabs":tabs,"path":path}, on_click=play_song, width=400, height=40) #TODO ADD IMG SONG TO BTN
+            selection = TextButton(f"{path}", data={"title_play_list": title_play_list, "tabs": tabs,
+                                   "path": path}, on_click=play_song, width=400, height=40)  # TODO ADD IMG SONG TO BTN
 
             if active_song[0] == title_play_list and active_song[1] == path:
                 selection.disabled = True
@@ -154,6 +176,16 @@ def main(page: Page):
         animation_duration=200,
         tabs=tabs
     )
+
+    play_back_btn = IconButton(icon=icons.SKIP_PREVIOUS_OUTLINED,icon_size=40)
+    pause_btn = IconButton(icon=icons.PAUSE_CIRCLE,icon_size=80,visible=False,on_click=play_pause_btn)
+    play_btn = IconButton(icon=icons.PLAY_CIRCLE_FILL,icon_size=80,on_click=play_pause_btn)
+    play_next_btn = IconButton(icon=icons.SKIP_NEXT_OUTLINED,icon_size=40)
+
+    unlike_btn = IconButton(icon=icons.FAVORITE_BORDER_OUTLINED,icon_size=30,on_click=like_music)
+    like_btn = IconButton(icon=icons.FAVORITE,icon_size=30,on_click=like_music,visible=False)
+    Volum = Slider(min=0, max=100, divisions=10,
+                   label="{value}%", on_change=change_volum,expand=True)
 
     if them == 'dark':
         btn_dark_mode.visible = False
@@ -190,7 +222,7 @@ def main(page: Page):
 
     page.add(Container(
         width=400,
-        height=500,
+        height=550,
         content=play_lists,
         padding=0,
         margin=margin.only(left=10, right=10, top=0, bottom=0),
@@ -201,6 +233,26 @@ def main(page: Page):
 
     )
     )
+
+    page.add(Column(controls=[
+        Row(
+            controls=[
+                play_back_btn,
+                pause_btn,
+                play_btn,
+                play_next_btn
+                ],
+            alignment='center'
+        ),
+        Row(
+            controls=[
+                unlike_btn,
+                like_btn,
+                Volum,
+                ]
+        ),
+        ]
+    ))
 
     # TODO MAKE BTN PLAYER --> (play,stop,volum,like)
 
