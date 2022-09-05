@@ -73,8 +73,28 @@ def main(page: Page):
             raise ValueError('data for change them is wrong')
 
     def play_song(e):
-        # TODO COMPLATE IT --> 1.Play Song | 2.Change Disable BTN Played Song
-        pass
+        # TODO COMPLATE IT --> 1.Play Song
+
+        # Enable btn old played song and Disable BTN new song player
+        this = e.control # Select Btn Clicked
+        active_song = read_data_setting()["active_song"].split(':')
+        active_song_btn = this.data['tabs']
+        for tab in active_song_btn:
+            if tab.text == active_song[0]:
+                for btn in tab.content.controls:
+                    if btn.data['path'] == active_song[1]:
+                        btn.disabled = False
+                        break
+                break
+        this.disabled = True
+
+        # Write in config file song played
+        play_list = this.data['title_play_list']
+        path = this.text
+        write_data_setting("active_song",f"{play_list}:{path}")
+
+
+        page.update()
 
     # TODO To Work Play Music and other Funcionts
 
@@ -92,6 +112,7 @@ def main(page: Page):
     tabs = [
         Tab(
             icon=icons.FAVORITE_SHARP,
+            text="favorite",
             content=Container(
                 content=Text("This is Tab 1"), alignment=alignment.center
             ),
@@ -109,8 +130,7 @@ def main(page: Page):
         paths = item["paths"]
         list_music = Column(scroll='always', spacing=0)
         for path in paths:
-            selection = TextButton(
-                f"{path}", on_click=play_song, width=400, height=40)
+            selection = TextButton(f"{path}"  ,data={"title_play_list":title_play_list,"tabs":tabs,"path":path}, on_click=play_song, width=400, height=40) #TODO ADD IMG SONG TO BTN
 
             if active_song[0] == title_play_list and active_song[1] == path:
                 selection.disabled = True

@@ -30,4 +30,4 @@ def set_defualt_setting(page):
     with open("config.json", "w") as file:
         file.write(json_object)
 
-    return TRUE
+    return True
