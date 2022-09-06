@@ -1,3 +1,4 @@
+from turtle import color
 import flet
 from flet import (
     Page,
@@ -21,9 +22,8 @@ from flet import (
     margin,
     Row,
     Slider,
-    Switch,
-    ElevatedButton,
-    Slider
+    Slider,
+    Icon
 )
 
 
@@ -118,7 +118,14 @@ def main(page: Page):
         pause_btn.visible = not pause_btn.visible
         page.update()
 
+    def add_song(e):
+        pass
 
+    def add_play_list(e):
+        pass
+
+    def remove_play_list(e):
+        pass
     # === Widgets ===
     btn_close = IconButton(icon=icons.CLOSE, width=40,
                            icon_color=colors.RED_300, on_click=close_window, tooltip='CLOSE')
@@ -128,6 +135,9 @@ def main(page: Page):
         icons.SUNNY, icon_color=colors.YELLOW_50, data='light', on_click=change_them)
     btn_dark_mode = IconButton(
         icons.NIGHTLIGHT, icon_color=colors.BLUE_100, data='dark', on_click=change_them)
+    btn_add_playlist = IconButton(
+        icon=icons.PLAYLIST_ADD_CIRCLE, icon_color=colors.GREEN_300, on_click=add_play_list)
+
     Title = Text(value='PFM Player', italic=True, size=30)
 
     tabs = [
@@ -158,6 +168,17 @@ def main(page: Page):
                 selection.disabled = True
             list_music.controls.append(selection)
 
+        list_music.controls.append(Divider(height=0, thickness=0))
+
+        add_song_btn = TextButton(content=Row(controls=[Text('add song', color=colors.GREEN_300), Icon(icons.ADD, color=colors.GREEN_300)]), icon_color=colors.GREEN_300, on_click=add_song, height=40)
+
+        remove_play_list_btn = TextButton(content=Row(controls=[Text('remove play list', color=colors.RED_300), Icon(icons.REMOVE, color=colors.RED_300)]),icon_color=colors.RED_300, data=title_play_list, on_click=remove_play_list, height=40)
+
+        list_music.controls.append(
+            Row(controls=[add_song_btn, remove_play_list_btn],alignment="spaceAround"))
+
+        list_music.controls.append(Divider(height=0, thickness=0))
+
         if title_play_list == "favorite":
             tabs[0].content = list_music
         elif title_play_list == "defualt":
@@ -177,15 +198,19 @@ def main(page: Page):
         tabs=tabs
     )
 
-    play_back_btn = IconButton(icon=icons.SKIP_PREVIOUS_OUTLINED,icon_size=40)
-    pause_btn = IconButton(icon=icons.PAUSE_CIRCLE,icon_size=80,visible=False,on_click=play_pause_btn)
-    play_btn = IconButton(icon=icons.PLAY_CIRCLE_FILL,icon_size=80,on_click=play_pause_btn)
-    play_next_btn = IconButton(icon=icons.SKIP_NEXT_OUTLINED,icon_size=40)
+    play_back_btn = IconButton(icon=icons.SKIP_PREVIOUS_OUTLINED, icon_size=40)
+    pause_btn = IconButton(icon=icons.PAUSE_CIRCLE,
+                           icon_size=80, visible=False, on_click=play_pause_btn)
+    play_btn = IconButton(icon=icons.PLAY_CIRCLE_FILL,
+                          icon_size=80, on_click=play_pause_btn)
+    play_next_btn = IconButton(icon=icons.SKIP_NEXT_OUTLINED, icon_size=40)
 
-    unlike_btn = IconButton(icon=icons.FAVORITE_BORDER_OUTLINED,icon_size=30,on_click=like_music)
-    like_btn = IconButton(icon=icons.FAVORITE,icon_size=30,on_click=like_music,visible=False)
+    unlike_btn = IconButton(
+        icon=icons.FAVORITE_BORDER_OUTLINED, icon_size=30, on_click=like_music)
+    like_btn = IconButton(icon=icons.FAVORITE, icon_size=30,
+                          on_click=like_music, visible=False)
     Volum = Slider(min=0, max=100, divisions=10,
-                   label="{value}%", on_change=change_volum,expand=True)
+                   label="{value}%", on_change=change_volum, expand=True)
 
     if them == 'dark':
         btn_dark_mode.visible = False
@@ -212,6 +237,7 @@ def main(page: Page):
             VerticalDivider(width=20, opacity=0.5, thickness=1),
             # TODO OPEN LINK REPOSITORY GITHUB AFTER CLICK ON BTN
             IconButton(icons.CODE_OUTLINED),
+            btn_add_playlist,
             btn_light_mode,
             btn_dark_mode,
             btn_change_size,
@@ -241,7 +267,7 @@ def main(page: Page):
                 pause_btn,
                 play_btn,
                 play_next_btn
-                ],
+            ],
             alignment='center'
         ),
         Row(
@@ -249,12 +275,10 @@ def main(page: Page):
                 unlike_btn,
                 like_btn,
                 Volum,
-                ]
+            ]
         ),
-        ]
+    ]
     ))
-
-    # TODO MAKE BTN PLAYER --> (play,stop,volum,like)
 
     page.update()
 
