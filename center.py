@@ -30,7 +30,7 @@ from utils import set_defualt_setting, read_data_setting, write_data_setting,_re
 from os.path import exists
 
 # Structure Cofig File ==> active_song: the song playing -> PlayListName:path | them: 'dark' or light 'them' | play_lists: [  {title:name play list , paths:list of path songs },...  ] |
-
+AddresRepositorie = "https://github.com/PooyaRezaee/PFM-Player"
 
 def main(page: Page):
     # === CHECKER ===
@@ -158,6 +158,9 @@ def main(page: Page):
 
         page.update()
 
+    def open_repositorie(e):
+        page.launch_url(AddresRepositorie)
+
     # === Widgets ===
     btn_close = IconButton(icon=icons.CLOSE, width=40,icon_color=colors.RED_300, on_click=close_window, tooltip='CLOSE')
     btn_change_size = IconButton(icon=icons.MINIMIZE_OUTLINED, width=40,icon_color=colors.BLUE_300, tooltip='MINIMIZE', on_click=minimize_widnow)
@@ -269,7 +272,7 @@ def main(page: Page):
             btn_pin_player,
             btn_unpin_player,
             # TODO OPEN LINK REPOSITORY GITHUB AFTER CLICK ON BTN
-            IconButton(icons.CODE_OUTLINED),
+            IconButton(icons.CODE_OUTLINED,on_click=open_repositorie),
             btn_add_playlist,
             btn_light_mode,
             btn_dark_mode,
