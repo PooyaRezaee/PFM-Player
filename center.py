@@ -44,7 +44,6 @@ def main(page: Page):
     page.window_opacity = 0.95
     page.window_title_bar_hidden = True
     # page.window_resizable = False
-    # page.window_always_on_top = True  #TODO ADD BUTTON PIN FOR ENABLE AND DSIABLE THIS IN APP BAR
     page.window_center()
     page.show_semantics_debugger = False  # DEBUGER
 
@@ -152,6 +151,12 @@ def main(page: Page):
 
         page.update()
 
+    def pin_player(e):
+        page.window_always_on_top = not page.window_always_on_top
+        btn_pin_player.visible = not btn_pin_player.visible
+        btn_unpin_player.visible = not btn_unpin_player.visible
+
+        page.update()
 
     # === Widgets ===
     btn_close = IconButton(icon=icons.CLOSE, width=40,icon_color=colors.RED_300, on_click=close_window, tooltip='CLOSE')
@@ -162,6 +167,10 @@ def main(page: Page):
         icons.NIGHTLIGHT, icon_color=colors.BLUE_100, data='dark', on_click=change_them)
     btn_add_playlist = IconButton(
         icon=icons.PLAYLIST_ADD_CIRCLE, icon_color=colors.GREEN_300, on_click=add_play_list,data={"command":"open input"})
+    btn_pin_player = IconButton(
+        icon=icons.PUSH_PIN_OUTLINED, on_click=pin_player)
+    btn_unpin_player = IconButton(
+        icon=icons.PUSH_PIN,visible=False, on_click=pin_player)
 
     Title = Text(value='PFM Player', italic=True, size=30)
 
@@ -257,6 +266,8 @@ def main(page: Page):
         actions=[
             icon_main,
             VerticalDivider(width=20, opacity=0.5, thickness=1),
+            btn_pin_player,
+            btn_unpin_player,
             # TODO OPEN LINK REPOSITORY GITHUB AFTER CLICK ON BTN
             IconButton(icons.CODE_OUTLINED),
             btn_add_playlist,
