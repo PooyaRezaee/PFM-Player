@@ -31,3 +31,18 @@ def set_defualt_setting(page):
         file.write(json_object)
 
     return True
+
+def _remove_play_list(play_list_name):
+    play_lists = read_data_setting()['play_lists']
+
+    for play_list in play_lists:
+        if play_list['title'] == play_list_name:
+            play_lists.remove(play_list)
+        
+    write_data_setting("play_lists",play_lists)
+
+def _add_play_list(play_list_name):
+    play_lists = read_data_setting()['play_lists']
+    play_lists.append({"title":play_list_name,"paths":[]})
+        
+    write_data_setting("play_lists",play_lists)
