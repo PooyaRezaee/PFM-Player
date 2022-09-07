@@ -43,7 +43,7 @@ def main(page: Page):
     page.horizontal_alignment = "center"
     page.window_opacity = 0.95
     page.window_title_bar_hidden = True
-    # page.window_resizable = False
+    page.window_resizable = False
     page.window_center()
     page.show_semantics_debugger = False  # DEBUGER
 
@@ -118,6 +118,15 @@ def main(page: Page):
     def add_song(e):
         pass
 
+
+    def remove_play_list(e):
+        _remove_play_list(e.control.data)
+        for tab in tabs:
+            if tab.text == e.control.data:
+                tabs.remove(tab)
+                page.update()
+                break
+
     def add_play_list(e):
         command = e.control.data['command']
         if command == "open input":
@@ -129,24 +138,30 @@ def main(page: Page):
             e.control.data['name_playlist'].value = ""
             get_new_play_list_dialog.open = False
 
+            
+
             _add_play_list(name_new_play_list)
             tabs.append(
                 Tab(
                     text=name_new_play_list,
                     icon=icons.PLAYLIST_PLAY,
+                    content=Column(
+                        [
+                        Divider(height=0, thickness=0),
+                        Row(controls=[
+                            TextButton(content=Row(controls=[Text('add song', color=colors.GREEN_300), Icon(icons.ADD, color=colors.GREEN_300)]), icon_color=colors.GREEN_300, on_click=add_song, height=40),
+                            TextButton(content=Row(controls=[Text('remove play list', color=colors.RED_300), Icon(icons.REMOVE, color=colors.RED_300)]),icon_color=colors.RED_300, data=name_new_play_list, on_click=remove_play_list, height=40)
+                            ],alignment="spaceAround"),
+                        Divider(height=0, thickness=0)
+                        ]
+                    )
                 )
             )
 
             page.update()
 
 
-    def remove_play_list(e):
-        _remove_play_list(e.control.data)
-        for tab in tabs:
-            if tab.text == e.control.data:
-                tabs.remove(tab)
-                page.update()
-                break
+
 
 
         page.update()
