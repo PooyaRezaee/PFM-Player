@@ -1,3 +1,4 @@
+from hashlib import new
 import flet
 from flet import (
     Page,
@@ -22,14 +23,16 @@ from flet import (
     Slider,
     Icon,
     AlertDialog,
-    TextField
+    TextField,
+    FilePicker,
+    FilePickerResultEvent,
 )
 
 
-from utils import set_defualt_setting, read_data_setting, write_data_setting,_remove_play_list,_add_play_list
+from utils import set_defualt_setting, read_data_setting, write_data_setting,_remove_play_list,_add_play_list,_add_new_song
 from os.path import exists
 
-# Structure Cofig File ==> active_song: the song playing -> PlayListName:path | them: 'dark' or light 'them' | play_lists: [  {title:name play list , paths:list of path songs },...  ] |
+# Structure Cofig File ==> There in config.json.example
 AddresRepositorie = "https://github.com/PooyaRezaee/PFM-Player"
 
 def main(page: Page):
@@ -83,21 +86,22 @@ def main(page: Page):
 
         # Enable btn old played song and Disable BTN new song player
         this = e.control  # Select Btn Clicked
-        active_song = read_data_setting()["active_song"].split(':')
+        active_song = read_data_setting()["active_song"]
         active_song_btn = this.data['tabs']
         for tab in active_song_btn:
             if tab.text == active_song[0]:
                 for btn in tab.content.controls:
-                    if btn.data['path'] == active_song[1]:
-                        btn.disabled = False
-                        break
+                    if btn.data != None:
+                        if btn.data['path'] == active_song[1]:
+                            btn.disabled = False
+                            break
                 break
         this.disabled = True
 
         # Write in config file song played
         play_list = this.data['title_play_list']
-        path = this.text
-        write_data_setting("active_song", f"{play_list}:{path}")
+        path = this.data['path']
+        write_data_setting("active_song", [play_list,path])
 
         page.update()
 
@@ -115,8 +119,41 @@ def main(page: Page):
         pause_btn.visible = not pause_btn.visible
         page.update()
 
-    def add_song(e):
-        pass
+    def add_song(e: FilePickerResultEvent,play_list_name):
+        if not e.files:
+            return
+
+        files = e.files
+        #play_list_name = "defualt" # FIX PROBLEM GET TITLE NAME LIST
+        new_songs = []
+
+        for file in files:
+            new_song = {}
+            new_song["name"] = file.name
+            new_song["path"] = file.path
+
+            new_songs.append(new_song)
+
+        new_songs = _add_new_song(play_list_name,new_songs)
+        
+        for tab in tabs:
+            if tab.text == play_list_name:
+                old_songs_tab = tab.content.controls
+                new_songs_tab = []
+
+                for song in new_songs:
+                    selection = TextButton(song["name"], data={"title_play_list": title_play_list, "tabs": tabs,"path": song["path"]}, on_click=play_song, width=400, height=40)  # TODO ADD IMG SONG TO BTN
+
+                    new_songs_tab.append(selection)
+                
+                _play_list = Column(scroll='always', spacing=0)
+                _play_list.controls = new_songs_tab + old_songs_tab
+
+                tab.content = _play_list
+                
+                break
+
+        page.update()
 
 
     def remove_play_list(e):
@@ -149,7 +186,7 @@ def main(page: Page):
                         [
                         Divider(height=0, thickness=0),
                         Row(controls=[
-                            TextButton(content=Row(controls=[Text('add song', color=colors.GREEN_300), Icon(icons.ADD, color=colors.GREEN_300)]), icon_color=colors.GREEN_300, on_click=add_song, height=40),
+                            TextButton(content=Row(controls=[Text('add song', color=colors.GREEN_300), Icon(icons.ADD, color=colors.GREEN_300)]), icon_color=colors.GREEN_300, on_click=lambda e:pick_song_dialog.pick_files(allow_multiple=True,file_type="audio",dialog_title=name_new_play_list), height=40),
                             TextButton(content=Row(controls=[Text('remove play list', color=colors.RED_300), Icon(icons.REMOVE, color=colors.RED_300)]),icon_color=colors.RED_300, data=name_new_play_list, on_click=remove_play_list, height=40)
                             ],alignment="spaceAround"),
                         Divider(height=0, thickness=0)
@@ -207,27 +244,27 @@ def main(page: Page):
         Tab(
             icon=icons.FAVORITE_SHARP,
             text="favorite",
-        ),
-        Tab(
-            text="defualt",
-            icon=icons.PLAYLIST_PLAY,
-        ),
+        )
     ]
 
     for item in read_data_setting()["play_lists"]:
-        active_song = read_data_setting()["active_song"].split(':')
-        title_play_list = item["title"]
-        paths = item["paths"]
-        list_music = Column(scroll='always', spacing=0)
-        for path in paths:
-            selection = TextButton(f"{path}", data={"title_play_list": title_play_list, "tabs": tabs,"path": path}, on_click=play_song, width=400, height=40)  # TODO ADD IMG SONG TO BTN
+        pick_song_dialog = FilePicker(on_result=lambda e: add_song(e,e.control.dialog_title))
+        page.overlay.append(pick_song_dialog)
 
-            if active_song[0] == title_play_list and active_song[1] == path:
+
+        active_song = read_data_setting()["active_song"]
+        title_play_list = item["title"]
+        songs = item["songs"]
+        list_music = Column(scroll='always', spacing=0)
+        for song in songs:
+            selection = TextButton(song["name"], data={"title_play_list": title_play_list, "tabs": tabs,"path": song["path"]}, on_click=play_song, width=400, height=40)  # TODO ADD IMG SONG TO BTN
+
+            if active_song[0] == title_play_list and active_song[1] == song["path"]:
                 selection.disabled = True
             list_music.controls.append(selection)
 
         list_music.controls.append(Divider(height=0, thickness=0))
-        add_song_btn = TextButton(content=Row(controls=[Text('add song', color=colors.GREEN_300), Icon(icons.ADD, color=colors.GREEN_300)]), icon_color=colors.GREEN_300, on_click=add_song, height=40)
+        add_song_btn = TextButton(content=Row(controls=[Text('add song', color=colors.GREEN_300), Icon(icons.ADD, color=colors.GREEN_300)]), icon_color=colors.GREEN_300, on_click=lambda e:pick_song_dialog.pick_files(allow_multiple=True,file_type="audio",dialog_title=title_play_list), height=40) #TODO FIX BUG Don't Change Name Dialog Box as Name Play List
         remove_play_list_btn = TextButton(content=Row(controls=[Text('remove play list', color=colors.RED_300), Icon(icons.REMOVE, color=colors.RED_300)]),icon_color=colors.RED_300, data=title_play_list, on_click=remove_play_list, height=40)
         list_music.controls.append(Row(controls=[add_song_btn, remove_play_list_btn],alignment="spaceAround"))
         list_music.controls.append(Divider(height=0, thickness=0))
@@ -235,8 +272,6 @@ def main(page: Page):
         if title_play_list == "favorite":
             list_music.controls[-2].controls.remove(remove_play_list_btn)
             tabs[0].content = list_music
-        elif title_play_list == "defualt":
-            tabs[1].content = list_music
         else:
             tabs.append(
                 Tab(
@@ -268,6 +303,9 @@ def main(page: Page):
     else:
         raise ValueError('exist problem in read config file')
     # === Additions ===
+
+
+
     page.add(Divider(height=0, thickness=0, opacity=0.5))
 
     icon_main = Image(
@@ -286,7 +324,6 @@ def main(page: Page):
             VerticalDivider(width=20, opacity=0.5, thickness=1),
             btn_pin_player,
             btn_unpin_player,
-            # TODO OPEN LINK REPOSITORY GITHUB AFTER CLICK ON BTN
             IconButton(icons.CODE_OUTLINED,on_click=open_repositorie),
             btn_add_playlist,
             btn_light_mode,

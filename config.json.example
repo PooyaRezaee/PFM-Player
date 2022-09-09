@@ -1,0 +1,33 @@
+{
+    "active_song": [
+        "play list name",
+        "path"
+    ],
+    "them": "dark or light",
+    "play_lists": [
+        {
+            "title": "favorite",
+            "songs": [
+                {
+                    "name": "name",
+                    "path": "path"
+                },
+                {
+                    ...
+                }
+            ]
+        },
+        {
+            "title": "Another Play List",
+            "songs": [
+                {
+                    "name": "name",
+                    "path": "path"
+                },
+                {
+                    ...
+                }
+            ]
+        }
+    ]
+}

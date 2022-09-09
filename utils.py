@@ -43,6 +43,26 @@ def _remove_play_list(play_list_name):
 
 def _add_play_list(play_list_name):
     play_lists = read_data_setting()['play_lists']
-    play_lists.append({"title":play_list_name,"paths":[]})
+    play_lists.append({"title":play_list_name,"songs":[]})
         
     write_data_setting("play_lists",play_lists)
+
+def _add_new_song(play_list_name,songs_list):
+    play_lists = read_data_setting()['play_lists']
+    for play_list in play_lists:
+        if play_list["title"] == play_list_name:
+            
+            theree_song = play_list["songs"]
+            for song in songs_list.copy():
+                if song in theree_song:
+                    songs_list.remove(song)
+                    print('have repet')
+            
+
+            play_list["songs"].extend(songs_list)
+            break
+    
+    write_data_setting("play_lists",play_lists)
+
+    return songs_list
+
