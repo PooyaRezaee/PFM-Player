@@ -48,7 +48,7 @@ class Music():
     def set_pos(self,secound):
         self.music.set_pos(secound)
     
-    def get_volumn(self):
+    def get_volum(self):
         return self.music.get_volume()
 
     def get_pos(self):

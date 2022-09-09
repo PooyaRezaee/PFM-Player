@@ -111,7 +111,8 @@ def main(page: Page):
 
     # TODO To Work Play Music and other Funcionts
     def change_volum(e):
-        page.update()
+        value = e.control.value
+        music.set_volum(value / 100)
 
     def like_music(e):
         like_btn.visible = not like_btn.visible
@@ -315,7 +316,7 @@ def main(page: Page):
 
     unlike_btn = IconButton(icon=icons.FAVORITE_BORDER_OUTLINED, icon_size=30, on_click=like_music)
     like_btn = IconButton(icon=icons.FAVORITE, icon_size=30,on_click=like_music, visible=False)
-    Volum = Slider(min=0, max=100, divisions=10,label="{value}%", on_change=change_volum, expand=True)
+    Volum = Slider(min=0, max=100, divisions=10,label="{value}%", on_change=change_volum, expand=True,value=100)
 
     if them == 'dark':
         btn_dark_mode.visible = False
