@@ -25,6 +25,7 @@ from flet import (
     TextField,
     FilePicker,
     FilePickerResultEvent,
+    SnackBar
 )
 
 
@@ -33,7 +34,6 @@ from os.path import exists
 
 # Structure Cofig File ==> There in config.json.example
 AddresRepositorie = "https://github.com/PooyaRezaee/PFM-Player"
-music = Music(read_data_setting()["active_song"][1])
 
 def main(page: Page):
     # === CHECKER ===
@@ -53,6 +53,14 @@ def main(page: Page):
     # Confg File
     them = read_data_setting()['them']
     page.theme_mode = them
+
+    try:
+        music = Music(read_data_setting()["active_song"][1])
+    except:
+        page.snack_bar = SnackBar(Text("1.Add Song \n2.click on song \n3.Restart Program"))
+
+        page.snack_bar.open = True
+        page.update()
 
     # === EVENTS ===
 

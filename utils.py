@@ -81,13 +81,15 @@ def write_data_setting(key, value):
 
 def set_defualt_setting(page):
     defualt_setting = {
+        "active_song": ["play list name","path"],
         "them": "dark",
+        "play_lists": [{"title": "favorite","songs": []}]
     }
 
-    json_object = json.dumps(defualt_setting, indent=4)
+    configs = json.dumps(defualt_setting, indent=4)
 
     with open("config.json", "w") as file:
-        file.write(json_object)
+        file.write(configs)
 
     return True
 
