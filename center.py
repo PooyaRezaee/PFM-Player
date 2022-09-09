@@ -82,8 +82,6 @@ def main(page: Page):
             raise ValueError('data for change them is wrong')
 
     def play_song(e):
-        # TODO COMPLATE IT --> 1.Play Song
-
         # Enable btn old played song and Disable BTN new song player
         this = e.control  # Select Btn Clicked
         active_song = read_data_setting()["active_song"]
@@ -108,8 +106,7 @@ def main(page: Page):
             play_pause_btn('changed')
 
         page.update()
-
-    # TODO To Work Play Music and other Funcionts
+        
     def change_volum(e):
         value = e.control.value
         music.set_volum(value / 100)
@@ -140,6 +137,67 @@ def main(page: Page):
             pause_btn.visible = False
         
         page.update()
+
+    def next_song(e):
+        active_song = read_data_setting()["active_song"]
+        all_play_list = read_data_setting()["play_lists"]
+        for play_list in all_play_list:
+            if play_list['title'] == active_song[0]:
+                i = 0
+                for song in play_list["songs"]:
+                    if not i == 0:
+                        path_next = song["path"]
+                        write_data_setting("active_song",[active_song[0],path_next])
+                        break
+                    elif active_song[1] == song["path"]:
+                        i = 1
+                        path_next = play_list["songs"][0]["path"]
+                        write_data_setting("active_song",[active_song[0],path_next])
+                break
+        
+        for tab in tabs:
+            if tab.text == active_song[0]:
+                for btn in tab.content.controls:
+                    if btn.data != None:
+                        if btn.data['path'] == active_song[1]:
+                            btn.disabled = False
+                        elif btn.data['path'] == path_next:
+                            btn.disabled = True
+
+        if music.is_played:
+            music.change_path(path_next)
+            play_pause_btn('changed')
+
+        page.update()
+
+    def prevous_song(e):
+        active_song = read_data_setting()["active_song"]
+        all_play_list = read_data_setting()["play_lists"]
+        for play_list in all_play_list:
+            if play_list['title'] == active_song[0]:
+                for song in play_list["songs"]:
+                    if active_song[1] == song["path"]:
+                        i = play_list["songs"].index(song)
+                        prevous_path = play_list["songs"][i - 1]["path"]
+                        write_data_setting("active_song",[active_song[0],prevous_path])
+                        break
+                break
+        
+        for tab in tabs:
+            if tab.text == active_song[0]:
+                for btn in tab.content.controls:
+                    if btn.data != None:
+                        if btn.data['path'] == active_song[1]:
+                            btn.disabled = False
+                        elif btn.data['path'] == prevous_path:
+                            btn.disabled = True
+
+        if music.is_played:
+            music.change_path(prevous_path)
+            play_pause_btn('changed')
+
+        page.update()
+
 
     def add_song(e: FilePickerResultEvent,play_list_name):
         if not e.files:
@@ -309,10 +367,10 @@ def main(page: Page):
         tabs=tabs
     )
 
-    play_back_btn = IconButton(icon=icons.SKIP_PREVIOUS_OUTLINED, icon_size=40)
+    play_back_btn = IconButton(icon=icons.SKIP_PREVIOUS_OUTLINED, icon_size=40,on_click=prevous_song)
     pause_btn = IconButton(icon=icons.PAUSE_CIRCLE,icon_size=80, visible=False, on_click=play_pause_btn)
     play_btn = IconButton(icon=icons.PLAY_CIRCLE_FILL,icon_size=80, on_click=play_pause_btn)
-    play_next_btn = IconButton(icon=icons.SKIP_NEXT_OUTLINED, icon_size=40)
+    play_next_btn = IconButton(icon=icons.SKIP_NEXT_OUTLINED, icon_size=40,on_click=next_song)
 
     unlike_btn = IconButton(icon=icons.FAVORITE_BORDER_OUTLINED, icon_size=30, on_click=like_music)
     like_btn = IconButton(icon=icons.FAVORITE, icon_size=30,on_click=like_music, visible=False)
