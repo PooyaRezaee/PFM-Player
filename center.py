@@ -1,4 +1,3 @@
-from hashlib import new
 import flet
 from flet import (
     Page,
@@ -29,11 +28,12 @@ from flet import (
 )
 
 
-from utils import set_defualt_setting, read_data_setting, write_data_setting,_remove_play_list,_add_play_list,_add_new_song
+from utils import set_defualt_setting, read_data_setting, write_data_setting,_remove_play_list,_add_play_list,_add_new_song,Music
 from os.path import exists
 
 # Structure Cofig File ==> There in config.json.example
 AddresRepositorie = "https://github.com/PooyaRezaee/PFM-Player"
+music = Music(read_data_setting()["active_song"][1])
 
 def main(page: Page):
     # === CHECKER ===
@@ -60,7 +60,7 @@ def main(page: Page):
         page.window_close()
 
     def minimize_widnow(e):
-        pass
+        pass #TODO MINIMIZE WINDOW AFTER CLICK
 
     def change_them(e):
         data_them = e.control.data
@@ -103,6 +103,10 @@ def main(page: Page):
         path = this.data['path']
         write_data_setting("active_song", [play_list,path])
 
+        if music.is_played:
+            music.change_path(path)
+            play_pause_btn('changed')
+
         page.update()
 
     # TODO To Work Play Music and other Funcionts
@@ -115,8 +119,25 @@ def main(page: Page):
         page.update()
 
     def play_pause_btn(e):
-        play_btn.visible = not play_btn.visible
-        pause_btn.visible = not pause_btn.visible
+        if e == "changed":
+            if not play_btn.visible:
+                music.play()
+            return
+
+        if play_btn.visible:
+            if not music.is_played():
+                music.play()
+                
+            else:
+                music.unpause()
+            
+            play_btn.visible = False
+            pause_btn.visible = True
+        else:
+            music.pause()
+            play_btn.visible = True
+            pause_btn.visible = False
+        
         page.update()
 
     def add_song(e: FilePickerResultEvent,play_list_name):

@@ -16,6 +16,13 @@ class Music():
         self.music.play()
         self.IS_PLAYED = True
         self.IS_PLAY = True
+    
+    def change_path(self,path):
+        self.stop()
+        self.IS_PLAYED = False
+        self.IS_PLAY = False
+        self.path = path
+        self.music.load(self.path)
 
     def pause(self):
         self.music.pause()
